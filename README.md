@@ -1,107 +1,107 @@
 # PRIMA · Blockchain certifier
 
-PRIMA le da a una persona una **prueba de existencia** de sus archivos: un certificado con sello de tiempo respaldado por la red de Bitcoin. Sirve como evidencia verificable de que un contenido existía, tal cual está, en una fecha determinada. No prueba autoría ni es un registro de propiedad intelectual.
+PRIMA gives you **proof of existence** for your files: a certificate with a timestamp anchored in the Bitcoin network. It is verifiable evidence that a file existed, exactly as it is, at a given moment. It does not prove authorship and it is not an intellectual property registry.
 
-Este repositorio es el **conector para Claude**: un servidor MCP (`fragola`) y una skill (`prima`) que permiten decirle a Claude "certificame esto" y que el archivo quede registrado en PRIMA (https://certified.fragola.agency).
+This repository is the **Claude connector**: an MCP server (`fragola`) and a skill (`prima`) that let you tell Claude "certify this" and have the file registered in PRIMA (https://certified.fragola.agency).
 
-- El archivo **nunca sale de tu computadora**. Claude calcula su huella SHA-256 localmente y al servidor solo viajan el nombre, el tamaño y la huella.
-- Una copia exacta del original queda en `Certificaciones/<proyecto>/`, dentro de la carpeta desde la que abrís Claude.
-- El certificado (PDF y paquete de verificación) llega por correo cuando Bitcoin confirma el sello. Puede demorar de una a cinco horas.
-- Guardá el archivo **exactamente como lo registraste**: para verificarlo hace falta ese mismo archivo.
-- Servicio gratuito: hasta 50 MB por archivo, 50 MB por pedido y 25 MB para video (con 480p alcanza).
+- Your file **never leaves your computer**. Claude computes its SHA-256 hash locally; only the file name, size and hash are sent to the server.
+- An exact copy of the original is kept in `Certificaciones/<project>/`, inside the folder where you open Claude.
+- The certificate (PDF and verification package) arrives by email once Bitcoin confirms the timestamp. This usually takes one to five hours.
+- Keep the file **exactly as you registered it**: verifying it later requires that same file.
+- Free service limits: 50 MB per file, 50 MB per request, and 25 MB for video (480p is enough).
 
 ---
 
-## Instalación con Claude (para pasarle el link de este repo)
+## Install with Claude (give Claude the link to this repo)
 
-> **Instrucciones para Claude.** La persona te pasó el link de este repositorio para que lo instales. Seguí estos pasos en orden, mostrale cada comando antes de ejecutarlo y pedile confirmación cuando cambies su configuración.
+> **Instructions for Claude.** The person gave you the link to this repository so you install it. Follow these steps in order, show them each command before running it, and ask for confirmation when you change their configuration. Talk to them in their own language.
 
-### 1. Datos que necesitás de la persona
+### 1. What you need from the person
 
-Pedile, en un solo mensaje:
+Ask for these in a single message:
 
-- su **correo** (recibirá el enlace de confirmación y el certificado),
-- su **nombre completo** (figura en el certificado),
-- su **país**, como código de dos letras (por ejemplo `AR`, `ES`, `US`).
+- their **email** (it receives the confirmation link and the certificate),
+- their **full name** (it appears on the certificate),
+- their **country** as a two-letter code (for example `AR`, `ES`, `US`).
 
-### 2. Requisitos
+### 2. Requirements
 
-- Python 3.10 o superior (`python --version`). Si falta, indicale cómo instalarlo y detenete.
-- `ffmpeg` solo si va a registrar videos de más de 25 MB (para reducirlos a 480p).
+- Python 3.10 or newer (`python --version`). If it is missing, tell them how to install it and stop.
+- `ffmpeg`, only if they will register videos larger than 25 MB (to reduce them to 480p).
 
-### 3. Descargar el repositorio
+### 3. Download the repository
 
-Clonalo en una carpeta estable de su usuario, por ejemplo `~/blockchain-certifier`:
+Clone it into a stable folder in their user directory, for example `~/blockchain-certifier`:
 
 ```bash
 git clone https://github.com/AntosGT/Blockchain-Certifier.git ~/blockchain-certifier
 python -m pip install -r ~/blockchain-certifier/fragola_mcp/requirements.txt
 ```
 
-### 4. Registrar el servidor MCP
+### 4. Register the MCP server
 
-**Claude Code** (alcance de usuario, para que funcione en cualquier carpeta). Reemplazá los valores de la persona y la ruta del clon:
+**Claude Code** (user scope, so it works in any folder). Replace the person's values and the path to the clone:
 
 ```bash
 claude mcp add -s user fragola \
-  -e PRIMA_EMAIL="correo@ejemplo.com" \
-  -e PRIMA_NAME="Nombre Apellido" \
+  -e PRIMA_EMAIL="email@example.com" \
+  -e PRIMA_NAME="First Last" \
   -e PRIMA_COUNTRY="AR" \
-  -e PYTHONPATH="/ruta/al/clon/blockchain-certifier" \
+  -e PYTHONPATH="/path/to/blockchain-certifier" \
   -- python -m fragola_mcp.server
 ```
 
-**Claude Desktop**: agregá esto en `mcpServers` de su `claude_desktop_config.json`:
+**Claude Desktop**: add this under `mcpServers` in their `claude_desktop_config.json`:
 
 ```json
 "fragola": {
   "command": "python",
   "args": ["-m", "fragola_mcp.server"],
   "env": {
-    "PRIMA_EMAIL": "correo@ejemplo.com",
-    "PRIMA_NAME": "Nombre Apellido",
+    "PRIMA_EMAIL": "email@example.com",
+    "PRIMA_NAME": "First Last",
     "PRIMA_COUNTRY": "AR",
-    "PYTHONPATH": "/ruta/al/clon/blockchain-certifier"
+    "PYTHONPATH": "/path/to/blockchain-certifier"
   }
 }
 ```
 
-Variables opcionales: `PRIMA_FOLDER` (carpeta donde se guardan las copias; por defecto `Certificaciones` dentro del directorio de trabajo), `PRIMA_LANG` (`es` o `en`), `PRIMA_API_URL` y `FRAGOLA_MCP_HOME` (dónde se guarda la clave de conexión; por defecto `~/.fragola_mcp`).
+Optional variables: `PRIMA_FOLDER` (where the copies are kept; default `Certificaciones` inside the working directory), `PRIMA_LANG` (`es` or `en`), `PRIMA_API_URL`, and `FRAGOLA_MCP_HOME` (where the connection key is stored; default `~/.fragola_mcp`).
 
-### 5. Instalar la skill
+### 5. Install the skill
 
-Copiá `skill/SKILL.md` a `~/.claude/skills/prima/SKILL.md` (Claude Code). La skill te explica cómo usar las herramientas `prima_*`, cómo hablarle a la persona y qué no hacer.
+Copy `skill/SKILL.md` to `~/.claude/skills/prima/SKILL.md` (Claude Code). The skill explains how to use the `prima_*` tools, how to talk to the person and what not to do.
 
-### 6. Reiniciar y conectar
+### 6. Restart and connect
 
-Pedile a la persona que **abra una sesión nueva de Claude** (los servidores MCP se cargan al iniciar). En esa sesión, la primera vez:
+Ask the person to **open a new Claude session** (MCP servers load at startup). In that session, the first time:
 
-1. Llamá `prima_conectar`: le llega un correo con un enlace de confirmación.
-2. Que pegue el enlace en el chat y llamá `prima_confirmar_conexion`. Se hace una sola vez.
+1. Call `prima_conectar`: they receive an email with a confirmation link.
+2. They paste the link into the chat and you call `prima_confirmar_conexion`. This is done once.
 
-Después ya puede decir "certificame este archivo": le mostrás la declaración completa, espera su "sí" explícito y recién ahí se registra.
+After that they can simply say "certify this file": you show the full declaration, wait for their explicit "yes", and only then register.
 
 ---
 
-## Herramientas
+## Tools
 
-| Herramienta | Qué hace |
+| Tool | What it does |
 |---|---|
-| `prima_conectar` / `prima_confirmar_conexion` | Conexión única por correo |
-| `prima_ver_declaracion` | Muestra la declaración que hay que aceptar en cada registro |
-| `prima_registrar_archivo` | Registra un archivo (huella local, copia exacta en `Certificaciones/<proyecto>/`) |
-| `prima_procesar_pendientes` | Registra lo que haya en la carpeta y todavía no esté registrado |
-| `prima_estado_registros` | Estado de los registros de un proyecto |
-| `prima_reducir_video` | Reduce un video a 480p con ffmpeg para cumplir el límite |
+| `prima_conectar` / `prima_confirmar_conexion` | One-time connection by email |
+| `prima_ver_declaracion` | Shows the declaration that must be accepted on every registration |
+| `prima_registrar_archivo` | Registers a file (local hash, exact copy in `Certificaciones/<project>/`) |
+| `prima_procesar_pendientes` | Registers whatever is in the folder and is not registered yet |
+| `prima_estado_registros` | Status of a project's registrations |
+| `prima_reducir_video` | Reduces a video to 480p with ffmpeg to meet the limit |
 
-## Verificar un certificado
+## Verifying a certificate
 
-El paquete ZIP que llega por correo trae el certificado, la prueba de Bitcoin y una guía para verificar sin depender de la plataforma. La skill ayuda a la persona a seguir esos pasos.
+The ZIP package that arrives by email contains the certificate, the Bitcoin proof and a guide to verify without depending on the platform. The skill helps the person follow those steps.
 
 ---
 
-## English summary
+## Resumen en español
 
-PRIMA gives you **proof of existence** for your files: a certificate with a timestamp anchored in the Bitcoin network. It proves a file existed, exactly as it is, at a given time. It does not prove authorship.
+PRIMA te da una **prueba de existencia** de tus archivos: un certificado con sello de tiempo anclado en la red de Bitcoin. Prueba que un archivo existía, tal cual está, en un momento dado; no prueba autoría.
 
-This repository is the **Claude connector**: an MCP server (`fragola`) and a skill (`prima`). Give Claude the link to this repo and it will install them for you (see the steps above; the instructions are written for Claude). Your files never leave your computer: only the file name, size and SHA-256 hash are sent. The certificate arrives by email once Bitcoin confirms the timestamp (usually one to five hours).
+Este repositorio es el **conector para Claude** (servidor MCP `fragola` y skill `prima`). Pasale el link de este repo a tu Claude y lo instala: las instrucciones de arriba están escritas para que Claude las siga. Tus archivos no salen de tu computadora: al servidor solo viajan el nombre, el tamaño y la huella SHA-256. El certificado llega por correo cuando Bitcoin confirma el sello (normalmente de una a cinco horas). Guardá el archivo exactamente como lo registraste, porque para verificarlo hace falta ese mismo archivo.
