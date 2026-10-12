@@ -35,7 +35,7 @@ class Config:
     country: str
     config_dir: Path
     key: str = ""
-    lang: str = "es"
+    lang: str = "en"
     document_id: str = ""
     max_file_mb: int = 50
     max_video_mb: int = 25  # servicio gratuito; con suscripción paga se amplía
@@ -51,7 +51,7 @@ class Config:
             api_url=env.get("PRIMA_API_URL", "https://certified.fragola.agency").rstrip("/"),
             folder=Path(env.get("PRIMA_FOLDER") or Path.cwd() / "Certificaciones"), email=env["PRIMA_EMAIL"],
             name=env["PRIMA_NAME"], country=env["PRIMA_COUNTRY"],
-            config_dir=Path(env.get("FRAGOLA_MCP_HOME") or Path.home() / ".fragola_mcp"), lang=env.get("PRIMA_LANG", "en"),
+            config_dir=Path(env.get("FRAGOLA_MCP_HOME") or Path.home() / ".fragola_mcp"),
             document_id=env.get("PRIMA_DOCUMENT_ID", ""), max_file_mb=int(env.get("PRIMA_MAX_FILE_MB", 50)),
             max_video_mb=int(env.get("PRIMA_MAX_VIDEO_MB", 25)))
         cfg.key = env.get("PRIMA_KEY") or load_key(cfg)
