@@ -66,7 +66,7 @@ claude mcp add -s user fragola \
 }
 ```
 
-Optional variables: `PRIMA_FOLDER` (where the copies are kept; default `Certificaciones` inside the working directory), `PRIMA_LANG` (`es` or `en`), `PRIMA_API_URL`, and `FRAGOLA_MCP_HOME` (where the connection key is stored; default `~/.fragola_mcp`).
+Optional variables: `PRIMA_FOLDER` (where the copies are kept; default `Certificaciones` inside the working directory), `PRIMA_LANG` (`en` or `es`; default `en`), `PRIMA_API_URL`, and `FRAGOLA_MCP_HOME` (where the connection key is stored; default `~/.fragola_mcp`).
 
 ### 5. Install the skill
 

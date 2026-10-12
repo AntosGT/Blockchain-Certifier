@@ -1,53 +1,54 @@
 ---
 name: prima
-description: Usá esta skill cuando la persona quiera certificar, registrar o dejar constancia de un archivo o de los archivos de un proyecto en prima-certified (por ejemplo "certificame esto", "registrá esta propuesta antes de enviarla"), consultar cómo van sus certificaciones o entender cómo verificar un certificado. Explica cómo usar las herramientas prima_* del MCP fragola.
+description: Use this skill when the person wants to certify, register or leave proof of a file or of the files of a project in PRIMA (for example "certify this", "register this proposal before I send it", "certificame esto", "registrá esta propuesta"), check how their certifications are going, or understand how to verify a certificate. It explains how to use the prima_* tools of the fragola MCP.
 ---
 
-# prima: registrar y certificar archivos
+# prima: register and certify files
 
-## Qué es y qué prueba
-prima le da a la persona una prueba de existencia de su archivo: un certificado con sello de tiempo respaldado por Bitcoin. Sirve como evidencia verificable de anterioridad. No prueba autoría, no es un registro de propiedad intelectual y no reemplaza a un abogado ni a un escribano. Si la persona pregunta por temas legales, decile que el certificado es una prueba técnica y que conviene consultar a un profesional. No prometas más de lo que prueba.
+Always talk to the person in their own language (Spanish or English, whichever they use).
 
-## Cómo hablarle a la persona
-- Frases cortas y afirmativas. Vocabulario: prueba de existencia, evidencia verificable, integridad verificable, sello de tiempo respaldado por Bitcoin.
-- Nunca nombres la tecnología interna, los códigos de estado ni los valores técnicos (huellas, hashes, identificadores). Si una herramienta devuelve un estado en mayúsculas, no lo muestres: usá el texto de `evidence_status` o explicalo con tus palabras.
-- Un aviso de servidor ocupado no es un error. Decile que espere unos minutos y vuelva a intentarlo; su información no se perdió.
+## What it is and what it proves
+PRIMA gives the person proof of existence of their file: a certificate with a timestamp backed by Bitcoin. It is verifiable evidence of anteriority. It does not prove authorship, it is not an intellectual property registry and it does not replace a lawyer or a notary. If the person asks about legal matters, tell them the certificate is technical proof and that they should consult a professional. Do not promise more than it proves.
 
-## Primera vez: conectarse
-1. Llamá `prima_conectar`. Le llega un correo con un enlace.
-2. Pedile que copie el enlace del correo y te lo pegue. Llamá `prima_confirmar_conexion` con ese enlace. Se hace una sola vez; la clave queda guardada en su PC y no se muestra.
-Si una herramienta dice que todavía no está conectada, empezá por acá.
+## How to talk to the person
+- Short, affirmative sentences. Vocabulary: proof of existence, verifiable evidence, verifiable integrity, timestamp backed by Bitcoin.
+- Never name the internal technology, status codes or technical values (fingerprints, hashes, identifiers). If a tool returns an upper-case status, do not show it: use the `evidence_status` text or explain it in your own words.
+- A "server busy" notice is not an error. Tell them to wait a few minutes and try again; their information was not lost.
 
-## Registrar un archivo
-1. Preguntá en qué proyecto va (el nombre de la carpeta dentro de Certificaciones) si no lo dijo.
-2. Llamá `prima_ver_declaracion` y mostrale el texto completo, sin resumirlo. La declaración se acepta en cada registro. Pedile una confirmación explícita. Sin su "sí", no registres. El sistema no deja registrar si antes no se pidió la declaración; ese pedido sirve por una hora, así que si registrás varios archivos seguidos con su aceptación alcanza con pedirla una vez. Si el sistema dice que hay que pedir la declaración de nuevo, pedila otra vez y mostrásela.
-3. Llamá `prima_registrar_archivo` con `declaracion_aceptada=true`. El original se copia a `Certificaciones/<proyecto>/` y al servidor solo viaja la información necesaria para el certificado, nunca el archivo.
-   Elegí la categoría que mejor calce con el archivo (si no está clara, `documento`): `audio`, `formato_audiovisual`, `codigo`, `propuesta_comercial`, `composicion`, `concepto_creativo`, `dataset`, `diseno`, `documento`, `idea`, `otro`, `fotografia`, `proyecto`, `investigacion`, `guion`, `sistema`, `logica_de_sistema`, `tratamiento`, `version_obra`, `video`. Pasala siempre en `categoria`.
-4. Contale que el certificado llega por correo cuando el sello de tiempo se confirma. Suele tardar: la certificación completa puede demorar de tres a cinco horas, según el tráfico de la red de Bitcoin. Pedile que lo guarde en la carpeta `certificados` de ese proyecto.
-Para registrar todo lo nuevo de una carpeta, usá `prima_procesar_pendientes` (también necesita la declaración aceptada). Si el archivo ya estaba registrado, la herramienta lo dice y no lo repite.
+## First time: connect
+1. Call `prima_conectar`. They receive an email with a link.
+2. Ask them to copy the link from the email and paste it to you. Call `prima_confirmar_conexion` with that link. This is done once; the key is stored on their computer and is never shown.
+If a tool says they are not connected yet, start here.
 
-## Conservar el archivo exacto
-Decile siempre a la persona que guarde el archivo tal cual se registró, sin editarlo, renombrarlo con cambios de contenido ni volver a comprimirlo. Para verificar hace falta ese mismo archivo. Si cambia algo y quiere registrar la nueva versión, se registra como un archivo nuevo.
+## Register a file
+1. Ask which project it belongs to (the name of the folder inside `Certificaciones`) if they did not say.
+2. Call `prima_ver_declaracion` and show them the full text, without summarising it. The declaration is accepted on every registration. Ask for an explicit confirmation. Without their "yes", do not register. The system does not allow registering unless the declaration was requested first; that request is valid for one hour, so if you register several files in a row with their acceptance you only need to request it once. If the system says the declaration must be requested again, request it again and show it.
+3. Call `prima_registrar_archivo` with `declaracion_aceptada=true`. The original is copied to `Certificaciones/<project>/` and only the information needed for the certificate travels to the server, never the file.
+   Choose the category that best fits the file (if unclear, `documento`): `audio`, `formato_audiovisual`, `codigo`, `propuesta_comercial`, `composicion`, `concepto_creativo`, `dataset`, `diseno`, `documento`, `idea`, `otro`, `fotografia`, `proyecto`, `investigacion`, `guion`, `sistema`, `logica_de_sistema`, `tratamiento`, `version_obra`, `video`. Always pass it in `categoria`.
+4. Tell them the certificate arrives by email once the timestamp is confirmed. It usually takes a while: full certification can take from one to five hours, depending on Bitcoin network traffic. Ask them to save it in the `certificados` folder of that project.
+To register everything new in a folder, use `prima_procesar_pendientes` (it also needs the declaration accepted). If the file was already registered, the tool says so and does not repeat it.
 
-## Límites del servicio gratuito
-- Hasta 50 MB por archivo y, para video, hasta 25 MB. No hay límite de duración.
-- Si un video se pasa, la herramienta responde "Excediste el límite". Ofrecé `prima_reducir_video`, que lo baja a 480p con ffmpeg y crea un archivo nuevo. Ese archivo reducido es el que se registra y el que hay que conservar; el original en alta calidad no se certifica.
-- Estos límites se pueden ampliar con el MCP y una suscripción paga.
+## Keep the exact file
+Always tell the person to keep the file exactly as it was registered: do not edit it, rename it with content changes or re-compress it. Verifying requires that same file. If something changes and they want to register the new version, it is registered as a new file.
 
-## Consultar cómo van
-Llamá `prima_estado_registros` con el proyecto. Contale por archivo, en simple, si está registrado, esperando el sello de tiempo o certificado. El certificado final llega por correo.
+## Free service limits
+- Up to 50 MB per file, 50 MB per request and, for video, up to 25 MB. There is no duration limit.
+- If a video is over the limit, the tool answers "limit exceeded". Offer `prima_reducir_video`, which reduces it to 480p with ffmpeg and creates a new file. That reduced file is the one that gets registered and the one to keep; the original high-quality video is not certified.
+- These limits can be raised with the MCP and a paid subscription.
 
-## Verificar un certificado
-Todavía no hay una herramienta de verificación. Si la persona quiere verificar, ayudala con el paquete ZIP que recibió por correo. Trae `certificate.pdf`, la carpeta `proof/` (`evidence.json`, `evidence.sha256` y `proof.ots`) y `technical_guide.txt`. El paquete no incluye su archivo original: tiene que ser el que conservó. Los pasos de esa guía son tres:
-1. **Comprobar el registro en Bitcoin.** En https://opentimestamps.org, sección Stamp & Verify, soltar `proof/proof.ots` en la primera caja y `proof/evidence.json` en la segunda. No soltar el documento original ahí: la prueba sella `evidence.json`, que lista sus documentos. El resultado confirma el bloque de Bitcoin que figura en el certificado.
-2. **Comprobar la huella de la evidencia.** Calcular el SHA-256 de `proof/evidence.json` y compararlo con el contenido de `proof/evidence.sha256` y con la huella que muestra el certificado.
-3. **Comprobar su documento original.** Calcular su SHA-256 y compararlo con el valor `sha256` que figura para ese archivo en `proof/evidence.json`. Si coinciden, ese archivo exacto es el que se registró. En Windows: `certutil -hashfile <archivo> SHA256`. En Mac o Linux: `shasum -a 256 <archivo>`.
-Los pasos 2 y 3 los podés hacer vos con los comandos si la persona te da acceso a los archivos; el paso 1 lo hace ella en el sitio. Estos pasos no necesitan acceso a prima. Los paquetes de certificados anteriores pueden tener otros nombres de archivo y una guía distinta: manda la `technical_guide.txt` de ese paquete. No inventes pasos que la guía no tenga. Cuando la persona te pida verificar, ahí sí podés usar estos términos técnicos, porque la guía del paquete ya los usa.
+## Check progress
+Call `prima_estado_registros` with the project. Tell them, file by file and in simple words, whether it is registered, waiting for the timestamp, or certified. The final certificate arrives by email.
 
-## Qué no hacer
-- No registres sin la aceptación explícita de la declaración.
-- No registres archivos que la persona no pidió.
-- Después de registrar, no muestres la huella SHA-256, el identificador de la evidencia ni ningún código técnico: contale solo el nombre del archivo, el proyecto, la fecha y que el certificado llega por correo.
-- No muestres claves, enlaces de acceso ni el contenido del registro local `.prima/`.
-- No modifiques, muevas ni borres los originales de la carpeta del proyecto.
+## Verify a certificate
+There is no verification tool yet. If the person wants to verify, help them with the ZIP package they received by email. It contains `certificate.pdf`, the `proof/` folder (`evidence.json`, `evidence.sha256` and `proof.ots`) and `technical_guide.txt`. The package does not include their original file: it has to be the one they kept. The guide has three steps:
+1. **Check the Bitcoin record.** At https://opentimestamps.org, Stamp & Verify section, drop `proof/proof.ots` in the first box and `proof/evidence.json` in the second. Do not drop the original document there: the proof seals `evidence.json`, which lists their documents. The result confirms the Bitcoin block shown on the certificate.
+2. **Check the evidence fingerprint.** Compute the SHA-256 of `proof/evidence.json` and compare it with the contents of `proof/evidence.sha256` and with the fingerprint shown on the certificate.
+3. **Check their original document.** Compute its SHA-256 and compare it with the `sha256` value listed for that file in `proof/evidence.json`. If they match, that exact file is the one that was registered. On Windows: `certutil -hashfile <file> SHA256`. On Mac or Linux: `shasum -a 256 <file>`.
+You can do steps 2 and 3 yourself with the commands if the person gives you access to the files; step 1 is done by them on the site. These steps do not need access to PRIMA. Older certificate packages may have different file names and a different guide: follow the `technical_guide.txt` of that package. Do not invent steps the guide does not have. When the person asks to verify, you may use these technical terms, because the package guide already uses them.
 
+## What not to do
+- Do not register without the explicit acceptance of the declaration.
+- Do not register files the person did not ask for.
+- After registering, do not show the SHA-256 fingerprint, the evidence identifier or any technical code: tell them only the file name, the project, the date and that the certificate arrives by email.
+- Do not show keys, access links or the contents of the local `.prima/` record.
+- Do not modify, move or delete the originals in the project folder.
