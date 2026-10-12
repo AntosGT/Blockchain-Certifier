@@ -34,7 +34,7 @@ Pedile, en un solo mensaje:
 Clonalo en una carpeta estable de su usuario, por ejemplo `~/blockchain-certifier`:
 
 ```bash
-git clone https://github.com/AntosGT/blockchain-certifier.git ~/blockchain-certifier
+git clone https://github.com/AntosGT/Blockchain-Certifier.git ~/blockchain-certifier
 python -m pip install -r ~/blockchain-certifier/fragola_mcp/requirements.txt
 ```
 
