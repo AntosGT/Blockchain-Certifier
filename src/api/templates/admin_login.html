@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Ingresar · prima-certified{% endblock %}
+{% block head_extra %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block header %}<header><div class="wrap"><span class="brand">prima-certified</span><span class="muted">Administración</span></div></header>{% endblock %}
+{% block content %}
+<h1>Ingresar</h1>
+<p class="lead">Acceso solo para administradores.</p>
+{% if error %}<div class="notice error">{{ error }}</div>{% endif %}
+<form method="post" action="/admin/login" class="card">
+  <label for="email">Email</label>
+  <input type="email" id="email" name="email" required autocomplete="username" autofocus>
+  <label for="password">Contraseña</label>
+  <input type="password" id="password" name="password" required autocomplete="current-password">
+  {% include "_bot_protection.html" %}
+  <p style="margin:18px 0 0"><button type="submit">Ingresar</button></p>
+</form>
+{% endblock %}

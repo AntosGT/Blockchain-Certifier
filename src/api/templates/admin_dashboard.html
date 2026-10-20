@@ -1,0 +1,108 @@
+{% extends "admin_base.html" %}
+{% block title %}Resumen · prima-certified{% endblock %}
+{% macro req_badge(s) %}<span class="badge {% if s == 'PROCESSED' %}ok{% elif s == 'FAILED' %}bad{% elif s in ('PENDING_EMAIL', 'AWAITING_PAYMENT', 'PROCESSING') %}warn{% endif %}">{{ request_states.get(s, s) }}</span>{% endmacro %}
+{% macro ev_badge(s) %}<span class="badge {% if s in ('VERIFIED', 'CONFIRMED') %}ok{% elif s == 'FAILED' %}bad{% else %}warn{% endif %}">{{ evidence_states.get(s, s) }}</span>{% endmacro %}
+{% block content %}
+<h1>Resumen</h1>
+
+{% if notice_counts.get('failed') %}
+<div class="notice error"><strong>{{ notice_counts.failed }} aviso{{ "s" if notice_counts.failed != 1 }} fallido{{ "s" if notice_counts.failed != 1 }}.</strong> Los correos no salieron. <a href="/admin/avisos?estado=failed">Ver y reenviar</a></div>
+{% endif %}
+{% if stale_notices %}
+<div class="notice warn"><strong>{{ stale_notices }} aviso{{ "s" if stale_notices != 1 }} pendiente{{ "s" if stale_notices != 1 }} hace más de 10 minutos.</strong> Puede que nadie los esté enviando. <a href="/admin/avisos?estado=pending">Ver</a></div>
+{% endif %}
+
+<div class="stats">
+  <a class="stat" href="/admin/operaciones"><b>{{ total_requests }}</b><span>Operaciones</span></a>
+  <a class="stat" href="/admin/evidencias"><b>{{ total_evidences }}</b><span>Evidencias</span></a>
+  <div class="stat"><b>{{ total_users }}</b><span>Clientes</span></div>
+</div>
+
+<h2>Operaciones por etapa</h2>
+{% for phase, codes in phases %}
+<p class="muted" style="margin:14px 0 6px">{{ phase }}</p>
+<div class="stats">
+  {% for code in codes %}
+  {% set info = stage_counts.get(code) %}
+  <a class="stat" href="/admin/operaciones?etapa={{ code }}">
+    <b>{{ info.n if info else 0 }}</b>
+    <span>{{ stage_labels[code] }}{% if info and info.oldest %}<br>la más antigua, {{ info.oldest|ago }}{% endif %}{% if overdue.get(code) %}<br><strong style="color:var(--bad)">{{ overdue[code] }} atrasada{{ "s" if overdue[code] != 1 }}</strong>{% endif %}</span>
+  </a>
+  {% endfor %}
+</div>
+{% endfor %}
+
+<h2>Procesos</h2>
+<div class="card scroll">
+  <table>
+    <tr><th>Proceso</th><th>Qué hace</th><th>Última corrida</th><th>Último trabajo</th><th>Avanzó (24 h)</th><th>Falló (24 h)</th><th>Estado</th></tr>
+    {% for p in processes %}
+    <tr>
+      <td>{{ p.label }}</td>
+      <td class="muted">{{ p.description }}</td>
+      <td>{% if p.run %}{{ p.run.started_at|ago }}<br><span class="muted" style="font-size:.8rem">levantó {{ p.run.lifted }}, esperando {{ p.run.deferred }}</span>{% else %}—{% endif %}</td>
+      <td>{% if p.run and p.run.last_work_at %}{{ p.run.last_work_at|ago }}{% else %}—{% endif %}</td>
+      <td>{{ p.run.advanced_24h if p.run else "—" }}</td>
+      <td>{{ p.run.failed_24h if p.run else "—" }}</td>
+      <td>
+        {% if p.health == "ok" %}<span class="badge ok">Activo</span>
+        {% elif p.health == "error" %}<span class="badge bad" title="{{ p.run.error }}">Con error</span>
+        {% elif p.health == "sin_actividad" %}<span class="badge bad">Sin actividad hace más de {{ stale_minutes }} min</span>
+        {% else %}<span class="badge warn">Sin corridas todavía</span>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<h2>Últimas solicitudes</h2>
+<div class="card scroll">
+  {% if latest_requests %}
+  <table>
+    <tr><th>Recibida</th><th>Título</th><th>Titular</th><th>Estado</th></tr>
+    {% for r in latest_requests %}
+    <tr>
+      <td>{{ r.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td><a href="/admin/solicitudes/{{ r.id }}">{{ r.title }}</a></td>
+      <td>{{ r.name }}<br><span class="muted">{{ r.email }}</span></td>
+      <td>{{ req_badge(r.status) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<span class="muted">Todavía no hay solicitudes.</span>{% endif %}
+</div>
+
+<h2>Últimas evidencias</h2>
+<div class="card scroll">
+  {% if latest_evidences %}
+  <table>
+    <tr><th>ID</th><th>Título</th><th>Titular</th><th>Estado</th></tr>
+    {% for e in latest_evidences %}
+    <tr>
+      <td class="mono"><a href="/admin/evidencias/{{ e.id }}">{{ e.id }}</a></td>
+      <td>{{ e.title }}</td>
+      <td>{{ e.owner_name }}</td>
+      <td>{{ ev_badge(e.status) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<span class="muted">Todavía no hay evidencias.</span>{% endif %}
+</div>
+
+<h2>Actividad reciente</h2>
+<div class="card scroll">
+  {% if events %}
+  <table>
+    <tr><th>Cuándo</th><th>Evento</th><th>Evidencia</th><th>Actor</th></tr>
+    {% for ev in events %}
+    <tr>
+      <td>{{ ev.timestamp.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+      <td>{{ event_labels.get(ev.event_type, ev.event_type) }}</td>
+      <td><a href="/admin/evidencias/{{ ev.evidence_id }}" class="mono">{{ ev.evidence_id }}</a></td>
+      <td>{{ ev.actor }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<span class="muted">Sin actividad todavía.</span>{% endif %}
+</div>
+{% endblock %}

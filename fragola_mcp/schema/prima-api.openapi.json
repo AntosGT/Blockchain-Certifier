@@ -1,0 +1,267 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PRIMA public API",
+    "version": "1.0.0",
+    "summary": "Register file fingerprints in PRIMA and follow their certification.",
+    "description": "Public entry used by the fragola MCP and by any client that registers by fingerprint. Files never reach the server: the client computes the SHA-256 locally and sends name, size and fingerprint. Identity is an email confirmed once with an emailed link, which returns a personal key. Every registration requires the current declaration, requested beforehand. The certificate package is delivered by email when the Bitcoin timestamp is confirmed, and can be verified without PRIMA (see prima_verify.py). All endpoints are rate limited; errors use the Error object."
+  },
+  "servers": [{ "url": "https://certified.fragola.agency" }],
+  "paths": {
+    "/salud": {
+      "get": {
+        "operationId": "health",
+        "summary": "Service health.",
+        "responses": {
+          "200": {
+            "description": "The service and its database respond.",
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "status": { "const": "ok" } } } } }
+          }
+        }
+      }
+    },
+    "/api/mcp/conexion": {
+      "post": {
+        "operationId": "connect",
+        "summary": "Send the email confirmation link.",
+        "description": "Sends an email with a confirmation link to the given address. Done once per computer.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "lang": { "type": "string", "enum": ["en", "es"], "default": "en" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "const": true },
+                    "sent_to": { "type": "string" },
+                    "link_hours": { "type": "integer", "description": "Hours the link stays valid." }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    },
+    "/api/mcp/conexion/confirmar": {
+      "post": {
+        "operationId": "confirmConnection",
+        "summary": "Exchange the emailed link for a key.",
+        "description": "Consumes the code of the emailed link (parameter t of the link) and returns the personal key. The key is shown only once; a new key revokes the previous one.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "required": ["t"], "properties": { "t": { "type": "string" } } }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Key issued.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "key": { "type": "string" }, "email": { "type": "string" } }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    },
+    "/api/mcp/declaracion": {
+      "get": {
+        "operationId": "getDeclaration",
+        "summary": "Get the declaration to accept before registering.",
+        "description": "Returns the current declaration and a signed receipt. Show the text to the person and obtain explicit acceptance; the registration must carry the receipt and is refused without it or after it expires.",
+        "security": [{ "key": [] }],
+        "parameters": [
+          { "name": "lang", "in": "query", "required": false, "schema": { "type": "string", "enum": ["en", "es"] } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Declaration and receipt.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "version": { "type": "string" },
+                    "text": { "type": "string" },
+                    "receipt": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/api/mcp/registros": {
+      "post": {
+        "operationId": "register",
+        "summary": "Register file fingerprints.",
+        "description": "Registers one evidence from fingerprints computed on the client. The email comes from the key, not from the body.",
+        "security": [{ "key": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "category", "name", "country", "project", "declaration_version", "declaration_accepted",
+                             "declaration_receipt", "files"],
+                "properties": {
+                  "title": { "type": "string" },
+                  "category": { "type": "string" },
+                  "description": { "type": "string" },
+                  "name": { "type": "string", "minLength": 2, "description": "Owner name, included in the sealed manifest." },
+                  "country": { "type": "string", "description": "Owner country code, included in the sealed manifest." },
+                  "document_id": { "type": "string" },
+                  "lang": { "type": "string", "enum": ["en", "es"] },
+                  "project": { "type": "string", "maxLength": 255 },
+                  "declaration_version": { "type": "string" },
+                  "declaration_accepted": { "const": true },
+                  "declaration_receipt": { "type": "string" },
+                  "files": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "required": ["filename", "size", "sha256"],
+                      "properties": {
+                        "filename": { "type": "string" },
+                        "size": { "type": "integer", "minimum": 1 },
+                        "sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registration accepted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "format": "uuid" },
+                    "access_token": { "type": "string", "description": "Needed to read the status. Keep it private." },
+                    "status": { "type": "string" },
+                    "evidence_id": { "type": ["string", "null"] }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "429": { "$ref": "#/components/responses/RateLimited" },
+          "503": { "$ref": "#/components/responses/Busy" }
+        }
+      }
+    },
+    "/api/solicitudes/{request_id}": {
+      "get": {
+        "operationId": "getStatus",
+        "summary": "Status of a registration.",
+        "parameters": [
+          { "name": "request_id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+          { "name": "t", "in": "query", "required": true, "description": "access_token returned by the registration.",
+            "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status. Only the holder of the access token can read it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lang": { "type": "string" },
+                    "status": { "type": "string" },
+                    "title": { "type": "string" },
+                    "name": { "type": "string" },
+                    "email": { "type": "string" },
+                    "category_label": { "type": "string" },
+                    "created_at": { "type": "string", "format": "date-time" },
+                    "evidence_id": { "type": ["string", "null"] },
+                    "declaration_version": { "type": ["string", "null"] },
+                    "manifest_hash": { "type": ["string", "null"], "description": "SHA-256 of the sealed manifest." },
+                    "evidence_text": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "key": { "type": "http", "scheme": "bearer", "description": "Personal key from confirmConnection." }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": { "code": { "type": "string" }, "message": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "The request cannot be processed; the message can be shown to the person.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "Unauthorized": {
+        "description": "Missing, invalid or revoked key.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "RateLimited": {
+        "description": "Too many requests. Try again later.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      },
+      "Busy": {
+        "description": "The service is temporarily full (error code busy). It is a notice, not a failure: try again in a few minutes.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      }
+    }
+  }
+}

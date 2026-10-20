@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{{ tr(lang, 'form.title') }} · prima-certified{% endblock %}
+{% block head_extra %}
+<meta name="robots" content="noindex">
+<script src="/static/dropdown.js?v=1" defer></script>
+<link rel="stylesheet" href="/static/fragola/fragola.css?v=2">
+{% endblock %}
+{% block header %}{% if lang == 'es' %}{% include "_fa_header_es.html" %}{% else %}{% include "_fa_header_en.html" %}{% endif %}{% endblock %}
+{% block footer %}{% if lang == 'es' %}{% include "_fa_footer_es.html" %}{% else %}{% include "_fa_footer_en.html" %}{% endif %}{% endblock %}
+{% block content %}
+<p class="eyebrow">{{ tr(lang, 'form.eyebrow') }}</p>
+<h1>{{ tr(lang, 'form.title') }}</h1>
+<p class="lead">{{ tr(lang, 'form.lead') }}</p>
+
+{% if error %}<div class="notice error">{{ error }}</div>{% endif %}
+
+<form method="post" action="/solicitudes" enctype="multipart/form-data">
+  <input type="hidden" name="t" value="{{ token }}">
+
+  <div class="card">
+    <h2 style="margin-top:0">{{ tr(lang, 'form.s1') }}</h2>
+    <label for="title">{{ tr(lang, 'form.field.title') }}</label>
+    <input type="text" id="title" name="title" maxlength="255" required value="{{ values.get('title', '') }}">
+    <label for="category">{{ tr(lang, 'form.field.category') }}</label>
+    <select id="category" name="category" required data-dropdown>
+      <option value="">{{ tr(lang, 'form.choose_option') }}</option>
+      {% for value, label in categories %}
+      <option value="{{ value }}" {% if values.get('category') == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <label for="description">{{ tr(lang, 'form.field.description') }} <small>{{ tr(lang, 'form.optional') }}</small></label>
+    <textarea id="description" name="description">{{ values.get('description', '') }}</textarea>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">{{ tr(lang, 'form.s2') }}</h2>
+    <label for="files">{{ tr(lang, 'form.field.files') }} <small>({{ tr(lang, 'form.files_hint', extensions=allowed_extensions, max_files=max_files, max_mb=max_file_mb) }})</small></label>
+    <input type="file" id="files" name="files" multiple>
+    <p class="muted" style="margin:14px 0 0">{{ tr(lang, 'form.or_text') }}</p>
+    <label for="text_title">{{ tr(lang, 'form.field.text_title') }} <small>{{ tr(lang, 'form.optional') }}</small></label>
+    <input type="text" id="text_title" name="text_title" maxlength="255" value="{{ values.get('text_title') or '' }}">
+    <label for="text_content">{{ tr(lang, 'form.field.text_content') }}</label>
+    <textarea id="text_content" name="text_content">{{ values.get('text_content') or '' }}</textarea>
+    <label for="text_authors">{{ tr(lang, 'form.field.text_authors') }} <small>{{ tr(lang, 'form.optional') }}</small></label>
+    <input type="text" id="text_authors" name="text_authors" maxlength="255" value="{{ values.get('text_authors') or '' }}">
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">{{ tr(lang, 'form.s3') }}</h2>
+    <label for="name">{{ tr(lang, 'form.field.name') }}</label>
+    <input type="text" id="name" name="name" maxlength="255" required value="{{ values.get('name', '') }}">
+    <div class="row">
+      <div>
+        <label for="email">{{ tr(lang, 'form.field.email') }} <small>{{ tr(lang, 'form.email_confirmed') }}</small></label>
+        <input type="email" id="email" value="{{ email }}" readonly tabindex="-1">
+      </div>
+      <div>
+        <label for="country">{{ tr(lang, 'form.field.country') }}</label>
+        <select id="country" name="country" required data-dropdown>
+          <option value="">{{ tr(lang, 'form.choose_country') }}</option>
+          {% for code, label in countries %}
+          <option value="{{ code }}" {% if values.get('country') == code %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <label for="document_id">{{ tr(lang, 'form.field.document') }} <small>{{ tr(lang, 'form.optional') }}</small></label>
+    <input type="text" id="document_id" name="document_id" maxlength="64" value="{{ values.get('document_id') or '' }}">
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">{{ tr(lang, 'form.s4') }}</h2>
+    <blockquote>{{ declaration.text }}</blockquote>
+    <input type="hidden" name="declaration_version" value="{{ declaration.version }}">
+    <label class="check"><input type="checkbox" name="declaration_accepted" value="1" required>
+      <span>{{ tr(lang, 'form.accept_declaration', version=declaration.version) }}</span></label>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">{% if payment_mode == "bypass" %}{{ tr(lang, 'form.s5') }}{% else %}{{ tr(lang, 'form.s5_price') }}{% endif %}</h2>
+    <dl>
+      <dt>{{ tr(lang, 'form.level_label') }}</dt><dd>{{ tr(lang, 'form.level_value') }}</dd>
+      {% if payment_mode != "bypass" %}<dt>{{ tr(lang, 'form.price') }}</dt><dd>USD {{ "%.2f"|format(price_usd) }}</dd>{% endif %}
+    </dl>
+  </div>
+
+  <p style="margin:22px 0 0"><button type="submit">{{ tr(lang, 'form.submit') }}</button></p>
+</form>
+{% endblock %}
+{% block before_footer %}{% include "_donate.html" %}{% endblock %}

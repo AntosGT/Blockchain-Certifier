@@ -1,0 +1,38 @@
+{% extends "admin_base.html" %}
+{% block title %}Operaciones · prima-certified{% endblock %}
+{% block content %}
+<h1>Operaciones</h1>
+<form method="get" action="/admin/operaciones" class="filters">
+  <select name="etapa" onchange="this.form.submit()">
+    <option value="">Todas las etapas</option>
+    {% for code, label in stages %}
+    <option value="{{ code }}" {% if etapa == code %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="cliente" onchange="this.form.submit()">
+    <option value="">Todos los clientes</option>
+    {% for c in clients %}
+    <option value="{{ c.email }}" {% if cliente == c.email %}selected{% endif %}>{{ c.name }} ({{ c.email }})</option>
+    {% endfor %}
+  </select>
+  <input type="text" name="q" value="{{ q }}" placeholder="Buscar por título, nombre, email o ID" maxlength="100">
+  <button type="submit">Buscar</button>
+</form>
+<div class="card scroll">
+  {% if rows %}
+  <table>
+    <tr><th>Operación</th><th>Cliente</th><th>Tipo</th><th>Etapa</th><th>En esta etapa</th><th>Evidencia</th></tr>
+    {% for o in rows %}
+    <tr>
+      <td><a href="/admin/solicitudes/{{ o.request_id }}">{{ o.title }}</a></td>
+      <td><a href="/admin/operaciones?cliente={{ o.email|urlencode }}">{{ o.name }}</a><br><span class="muted">{{ o.email }}</span></td>
+      <td>{{ category_labels.get(o.category, o.category) }}</td>
+      <td><span class="badge {% if o.stage in ('verificada', 'certificada') %}ok{% elif o.stage in ('fallida', 'expirada') %}bad{% else %}warn{% endif %}">{{ stage_labels.get(o.stage, o.stage) }}</span></td>
+      <td>{{ o.stage_since|ago }}{% if o.request_id|string in overdue_ids %} <span class="badge bad">atrasada</span>{% endif %}</td>
+      <td>{% if o.evidence_id %}<a class="mono" href="/admin/evidencias/{{ o.evidence_id }}">{{ o.evidence_id }}</a>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<span class="muted">No hay operaciones con ese filtro.</span>{% endif %}
+</div>
+{% endblock %}

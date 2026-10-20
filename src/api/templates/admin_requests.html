@@ -1,0 +1,39 @@
+{% extends "admin_base.html" %}
+{% block title %}Solicitudes · prima-certified{% endblock %}
+{% block content %}
+<h1>Solicitudes</h1>
+<form method="get" action="/admin/solicitudes" class="filters">
+  <select name="estado" onchange="this.form.submit()">
+    <option value="">Todos los estados</option>
+    {% for code, label in request_states.items() %}
+    <option value="{{ code }}" {% if estado == code %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="cliente" onchange="this.form.submit()">
+    <option value="">Todos los clientes</option>
+    {% for c in clients %}
+    <option value="{{ c.email }}" {% if cliente == c.email %}selected{% endif %}>{{ c.name }} ({{ c.email }})</option>
+    {% endfor %}
+  </select>
+  <input type="text" name="q" value="{{ q }}" placeholder="Buscar por título, nombre o email" maxlength="100">
+  <button type="submit">Buscar</button>
+</form>
+<div class="card scroll">
+  {% if rows %}
+  <table>
+    <tr><th>Recibida</th><th>Título</th><th>Tipo</th><th>Titular</th><th>Archivos</th><th>Estado</th><th>Evidencia</th></tr>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td><a href="/admin/solicitudes/{{ r.id }}">{{ r.title }}</a></td>
+      <td>{{ category_labels.get(r.category, r.category) }}</td>
+      <td><a href="/admin/solicitudes?cliente={{ r.email|urlencode }}">{{ r.name }}</a><br><span class="muted">{{ r.email }}</span></td>
+      <td>{{ r.files_count }}</td>
+      <td><span class="badge {% if r.status == 'PROCESSED' %}ok{% elif r.status == 'FAILED' %}bad{% elif r.status in ('PENDING_EMAIL', 'AWAITING_PAYMENT', 'PROCESSING') %}warn{% endif %}">{{ request_states.get(r.status, r.status) }}</span></td>
+      <td>{% if r.evidence_id %}<a class="mono" href="/admin/evidencias/{{ r.evidence_id }}">{{ r.evidence_id }}</a>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<span class="muted">No hay solicitudes con ese filtro.</span>{% endif %}
+</div>
+{% endblock %}

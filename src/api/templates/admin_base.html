@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block head_extra %}<meta name="robots" content="noindex, nofollow"><style>.wrap { max-width: 1120px; }</style>{% endblock %}
+{% block header %}
+<header><div class="wrap">
+  <nav class="admin">
+    <span class="brand" style="margin-right:12px">prima-certified</span>
+    <a href="/admin" class="{% if active == 'resumen' %}active{% endif %}">Resumen</a>
+    <a href="/admin/operaciones" class="{% if active == 'operaciones' %}active{% endif %}">Operaciones</a>
+    <a href="/admin/solicitudes" class="{% if active == 'solicitudes' %}active{% endif %}">Solicitudes</a>
+    <a href="/admin/evidencias" class="{% if active == 'evidencias' %}active{% endif %}">Evidencias</a>
+    <a href="/admin/avisos" class="{% if active == 'avisos' %}active{% endif %}">Avisos</a>
+  </nav>
+  <form method="post" action="/admin/logout" style="margin:0">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <span class="muted" style="margin-right:10px">{{ admin.email }}</span>
+    <button type="submit" class="secondary" style="padding:6px 12px">Salir</button>
+  </form>
+</div></header>
+{% endblock %}

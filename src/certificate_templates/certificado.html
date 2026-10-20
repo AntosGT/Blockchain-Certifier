@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="{{ t.language|default('es') }}">
+<head>
+<meta charset="utf-8">
+<title>{{ t.document_title }} {{ evidence_id }}</title>
+<style>
+  /* PRIMA certificate template. It is edited as HTML and CSS; the texts come from the current text version. */
+  @page { size: A4; margin: 16mm 16mm 18mm 16mm; }
+  :root { --ink: #14181f; --muted: #5b6573; --line: #d9dee6; --accent: #12355b; --soft: #f4f6f9; }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--ink); font-family: "Segoe UI", Arial, Helvetica, sans-serif; font-size: 10.5pt; line-height: 1.45; }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 18px; }
+  .top h1 { margin: 0; font-size: 22pt; line-height: 1.15; color: var(--accent); }
+  .top .sub { margin-top: 4px; color: var(--muted); font-size: 10.5pt; }
+  .brand { font-weight: 700; letter-spacing: 3px; color: var(--accent); font-size: 12pt; }
+  .block { margin: 0 0 14px; break-inside: avoid; }
+  .label { color: var(--muted); font-size: 8.5pt; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 2px; }
+  .value { font-size: 12pt; font-weight: 600; }
+  .mono { font-family: Consolas, "Courier New", monospace; font-size: 9.5pt; word-break: break-all; }
+  .id { font-family: Consolas, "Courier New", monospace; font-size: 15pt; font-weight: 700; color: var(--accent); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+  .box { background: var(--soft); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  th { text-align: left; color: var(--muted); font-weight: 600; font-size: 8pt; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--line); padding: 5px 6px; }
+  td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr { break-inside: avoid; }
+  .note { color: var(--muted); font-size: 9pt; }
+  .declaration { border-left: 3px solid var(--line); padding: 4px 12px; color: var(--muted); }
+  .foot { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div>
+    <h1>{{ t.document_title }}</h1>
+    <div class="sub">{{ t.document_subtitle }}</div>
+  </div>
+  <div class="brand">{{ t.footer }}</div>
+</div>
+
+{% if "identificacion" in blocks %}
+<div class="block">
+  <div class="label">{{ labels.evidence_id }}</div>
+  <div class="id">{{ evidence_id }}</div>
+</div>
+<div class="block">
+  <div class="label">{{ labels.title }}</div>
+  <div class="value">{{ title }}</div>
+</div>
+{% endif %}
+
+<div class="grid">
+  {% if "titular" in blocks %}
+  <div class="block">
+    <div class="label">{{ labels.owner }}</div>
+    <div class="value">{{ owner_line }}</div>
+  </div>
+  {% endif %}
+  {% if "fechas" in blocks %}
+  <div class="block">
+    <div class="label">{{ labels.created }}</div>
+    <div class="value">{{ created_at }}</div>
+  </div>
+  {% endif %}
+</div>
+
+{% if "certificacion" in blocks %}
+<div class="block box">
+  <div class="label">{{ labels.certification }}</div>
+  <div class="value">{{ certification_line }}</div>
+</div>
+{% endif %}
+
+{% if "huella" in blocks %}
+<div class="block">
+  <div class="label">{{ labels.hash }}</div>
+  <div class="mono">{{ evidence_hash }}</div>
+</div>
+<div class="block">
+  <div class="label">{{ labels.system }}</div>
+  <div>{{ system_version }}</div>
+</div>
+{% endif %}
+
+{% if "archivos" in blocks and files %}
+<div class="block">
+  <div class="label">{{ labels.files }}</div>
+  <table>
+    <tr><th>{{ labels.file_name }}</th><th>{{ labels.file_size }}</th><th>{{ labels.file_hash }}</th></tr>
+    {% for f in files %}
+    <tr><td>{{ f.name }}</td><td style="white-space:nowrap">{{ f.size }}</td><td class="mono">{{ f.sha256 }}</td></tr>
+    {% endfor %}
+  </table>
+  {% if more_files_text %}<div class="note" style="margin-top:6px">{{ more_files_text }}</div>{% endif %}
+</div>
+{% endif %}
+
+{% if "declaracion" in blocks and declaration_text %}
+<div class="block">
+  <div class="label">{{ labels.declaration }} {{ declaration_version }}</div>
+  <div class="declaration">{{ declaration_text }}</div>
+</div>
+{% endif %}
+
+{% if "aviso" in blocks %}
+<div class="foot">
+  <div class="note">{{ t.method_text }}</div>
+  {% if t.legal_notice %}<div class="note" style="margin-top:6px">{{ t.legal_notice }}</div>{% endif %}
+</div>
+{% endif %}
+
+</body>
+</html>

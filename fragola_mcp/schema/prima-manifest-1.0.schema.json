@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PRIMA evidence manifest",
+  "description": "Manifest of a PRIMA evidence, schema_version 1.0. The manifest is canonicalized with RFC 8785 (JCS) and its SHA-256 is the value timestamped in Bitcoin with OpenTimestamps.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "system_version",
+    "evidence_id",
+    "created_at",
+    "title",
+    "category",
+    "hash_algorithm",
+    "owner",
+    "declaration",
+    "files"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "Version of this manifest format.",
+      "const": "1.0"
+    },
+    "system_version": {
+      "description": "Version of the system that generated the manifest.",
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_id": {
+      "description": "Unique identifier of the evidence.",
+      "type": "string",
+      "pattern": "^[A-Z]+-[0-9]{8}-[A-Z0-9]+$"
+    },
+    "created_at": {
+      "description": "Creation time, ISO-8601 UTC with milliseconds.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "title": {
+      "description": "Title given by the owner.",
+      "type": "string"
+    },
+    "category": {
+      "description": "Category chosen by the owner.",
+      "type": "string"
+    },
+    "hash_algorithm": {
+      "description": "Algorithm used for every hash in the manifest.",
+      "const": "SHA-256"
+    },
+    "owner": {
+      "description": "Person who registered the evidence.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "email", "country"],
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "country": { "description": "Country code.", "type": "string" }
+      }
+    },
+    "declaration": {
+      "description": "Declaration accepted by the owner at registration.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "text"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    },
+    "files": {
+      "description": "Registered files, sorted by filename.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["filename", "mime", "sha256", "size"],
+        "properties": {
+          "filename": { "type": "string", "minLength": 1 },
+          "mime": { "type": "string", "minLength": 1 },
+          "sha256": {
+            "description": "SHA-256 of the file, lowercase hex.",
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "description": "Size in bytes.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "salt_hex": {
+            "description": "Random per-file salt, lowercase hex.",
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "storage_reference": {
+            "description": "Internal storage path. Empty when the server did not keep the file.",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

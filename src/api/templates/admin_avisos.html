@@ -1,0 +1,44 @@
+{% extends "admin_base.html" %}
+{% block title %}Avisos · prima-certified{% endblock %}
+{% block content %}
+<h1>Avisos</h1>
+<div class="stats">
+  <a class="stat" href="/admin/avisos?estado=pending"><b>{{ counts.get('pending', 0) }}</b><span>Pendientes</span></a>
+  <a class="stat" href="/admin/avisos?estado=sent"><b>{{ counts.get('sent', 0) }}</b><span>Enviados</span></a>
+  <a class="stat" href="/admin/avisos?estado=failed"><b>{{ counts.get('failed', 0) }}</b><span>Fallidos</span></a>
+</div>
+<form method="get" action="/admin/avisos" class="filters" style="margin-top:16px">
+  <select name="estado" onchange="this.form.submit()">
+    <option value="">Todos los estados</option>
+    {% for code, label in notice_states.items() %}
+    <option value="{{ code }}" {% if estado == code %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="tipo" onchange="this.form.submit()">
+    <option value="">Todos los tipos</option>
+    {% for code, label in notice_kinds.items() %}
+    <option value="{{ code }}" {% if tipo == code %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+</form>
+<div class="card scroll">
+  {% if rows %}
+  <table>
+    <tr><th>Creado</th><th>Aviso</th><th>Destinatario</th><th>Operación</th><th>Estado</th><th>Intentos</th><th>Último error</th><th>Enviado</th><th></th></tr>
+    {% for n in rows %}
+    <tr>
+      <td>{{ n.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>{{ notice_kinds.get(n.kind, n.kind) }}</td>
+      <td>{{ n.recipient_email }}</td>
+      <td>{% if n.request_id %}<a href="/admin/solicitudes/{{ n.request_id }}">{{ n.payload.get("title", "ver") }}</a>{% endif %}</td>
+      <td><span class="badge {% if n.status == 'sent' %}ok{% elif n.status == 'failed' %}bad{% else %}warn{% endif %}">{{ notice_states.get(n.status, n.status) }}</span></td>
+      <td>{{ n.attempts }}</td>
+      <td class="muted">{{ n.last_error or "" }}</td>
+      <td>{% if n.sent_at %}{{ n.sent_at.strftime("%Y-%m-%d %H:%M") }}{% endif %}</td>
+      <td>{% if n.status == 'failed' %}<form method="post" action="/admin/avisos/{{ n.id }}/reenviar" style="margin:0"><input type="hidden" name="csrf" value="{{ csrf }}"><button type="submit" class="secondary" style="padding:4px 10px">Reenviar</button></form>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<span class="muted">No hay avisos con ese filtro.</span>{% endif %}
+</div>
+{% endblock %}

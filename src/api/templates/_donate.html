@@ -1,0 +1,48 @@
+<style>
+.donate { background: var(--dark); color: var(--dark-text); text-align: center; padding: 72px 0; }
+.donate .wrap { max-width: 1040px; }
+.donate .card { background: transparent; border: 0; box-shadow: none; margin: 0 auto; padding: 0; max-width: 640px; }
+.donate .btn { margin-top: 24px; }
+.donate .eyebrow { color: #ffffff; background: #7c3aed; display: inline-block; padding: 3px 8px; font-weight: 700; }
+.donate h2 { color: #fff8f0; font-size: 1.5rem; letter-spacing: -.5px; margin: 0 0 12px; }
+.donate p { margin: 0 auto 8px; color: var(--dark-muted); font-size: .98rem; max-width: 56ch; }
+.donate p.eyebrow { margin-bottom: 14px; }
+.donate p.donate-human { color: #fff8f0; font-weight: 600; }
+.donate p.donate-note { font-size: .86rem; margin: 0 auto; }
+.donate a.btn.secondary { background: #c2227f; color: #ffffff; border: 0; }
+.donate a.btn.secondary:hover { background: var(--hover); color: var(--dark); }
+.donate-cta { display: inline-block; text-align: center; }
+.donate-cta .btn { margin-top: 24px; }
+.donate .donate-cta p.donate-stripe { margin: 10px 0 0; font-size: .8rem; letter-spacing: .3px; color: var(--dark-muted); text-align: center; }
+@media (max-width: 860px) { .donate { padding: 52px 0; } }
+</style>
+<section class="donate donate-test" id="donar">
+  <div class="wrap">
+    <div class="card">
+      <div class="donate-text">
+{% if lang == 'es' %}
+        <p class="eyebrow">Servicio gratuito</p>
+        <h2>Prima es gratis. Las donaciones la mantienen funcionando.</h2>
+        <p>Registrar tu contenido no tiene costo. Las donaciones ayudan a cubrir la infraestructura y el procesamiento, para que Prima siga siendo gratuita y accesible para todos.</p>
+        <p class="donate-human">Si no podés donar, registrá tus ideas igual.</p>
+        <p class="donate-note">Donar es opcional y no es un pago por registrar.</p>
+      </div>
+      <div class="donate-cta">
+        <a class="btn secondary" href="https://buy.stripe.com/aFa8wR3tgfrbeWcfNK0x20a" target="_blank" rel="noopener noreferrer">Apoyar a Prima</a>
+      <p class="donate-stripe">Powered by Stripe</p>
+      </div>
+{% else %}
+        <p class="eyebrow">Free service</p>
+        <h2>Prima is free. Donations keep it running.</h2>
+        <p>Registering your content costs nothing. Donations help cover infrastructure and processing, so Prima stays free and accessible to everyone.</p>
+        <p class="donate-human">If you cannot donate, register your ideas anyway.</p>
+        <p class="donate-note">Donating is optional and is not a payment for registering.</p>
+      </div>
+      <div class="donate-cta">
+        <a class="btn secondary" href="https://buy.stripe.com/aFa8wR3tgfrbeWcfNK0x20a" target="_blank" rel="noopener noreferrer">Support Prima</a>
+      <p class="donate-stripe">Powered by Stripe</p>
+      </div>
+{% endif %}
+    </div>
+  </div>
+</section>

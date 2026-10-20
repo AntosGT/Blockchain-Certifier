@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}prima-certified{% endblock %}
+{% block head_extra %}
+<meta name="robots" content="noindex">
+<style>[hidden] { display: none !important; }</style>
+<script src="/static/dropdown.js?v=2" defer></script>
+<script src="/static/portal.js?v=3" defer></script>
+<link rel="stylesheet" href="/static/fragola/fragola.css?v=2">
+{% endblock %}
+{% block header %}<div data-only="en">{% with lang='en' %}{% include "_fa_header_en.html" %}{% endwith %}</div><div data-only="es" hidden>{% with lang='es' %}{% include "_fa_header_es.html" %}{% endwith %}</div>{% endblock %}
+{% block footer %}<div data-only="en">{% with lang='en' %}{% include "_fa_footer_en.html" %}{% endwith %}</div><div data-only="es" hidden>{% with lang='es' %}{% include "_fa_footer_es.html" %}{% endwith %}</div>{% endblock %}
+{% block content %}
+<div class="notice warn" id="form-loading">...</div>
+<div id="link-error" hidden>
+  <h1 id="link-error-title"></h1>
+  <div class="notice error" id="link-error-message"></div>
+  <p><a id="link-error-back" href="/"></a></p>
+</div>
+
+<div id="form-head">
+<p class="eyebrow" data-i18n="form.eyebrow"></p>
+<h1 data-i18n="form.title"></h1>
+<p class="lead" data-i18n="form.lead"></p>
+</div>
+
+<div class="notice error" id="form-error" hidden></div>
+
+<form method="post" id="solicitud-form" enctype="multipart/form-data" hidden>
+  <input type="hidden" name="t" value="">
+
+  <div class="card">
+    <h2 style="margin-top:0" data-i18n="form.s1"></h2>
+    <label for="title" data-i18n="form.field.title"></label>
+    <input type="text" id="title" name="title" maxlength="255" required>
+    <label for="category" data-i18n="form.field.category"></label>
+    <select id="category" name="category" required></select>
+    <label for="description"><span data-i18n="form.field.description"></span> <small data-i18n="form.optional"></small></label>
+    <textarea id="description" name="description"></textarea>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0" data-i18n="form.s2"></h2>
+    <label for="files"><span data-i18n="form.field.files"></span> <small id="files-hint"></small></label>
+    <input type="file" id="files" name="files" multiple>
+    <p class="muted" id="video-hint" style="margin:6px 0 0"></p>
+    <p class="muted" style="margin:14px 0 0" data-i18n="form.or_text"></p>
+    <label for="text_title"><span data-i18n="form.field.text_title"></span> <small data-i18n="form.optional"></small></label>
+    <input type="text" id="text_title" name="text_title" maxlength="255">
+    <label for="text_content" data-i18n="form.field.text_content"></label>
+    <textarea id="text_content" name="text_content"></textarea>
+    <label for="text_authors"><span data-i18n="form.field.text_authors"></span> <small data-i18n="form.optional"></small></label>
+    <input type="text" id="text_authors" name="text_authors" maxlength="255">
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0" data-i18n="form.s3"></h2>
+    <label for="name" data-i18n="form.field.name"></label>
+    <input type="text" id="name" name="name" maxlength="255" required>
+    <div class="row">
+      <div>
+        <label for="field-email"><span data-i18n="form.field.email"></span> <small data-i18n="form.email_confirmed"></small></label>
+        <input type="email" id="field-email" value="" readonly tabindex="-1">
+      </div>
+      <div>
+        <label for="country" data-i18n="form.field.country"></label>
+        <select id="country" name="country" required></select>
+      </div>
+    </div>
+    <label for="document_id"><span data-i18n="form.field.document"></span> <small data-i18n="form.optional"></small></label>
+    <input type="text" id="document_id" name="document_id" maxlength="64">
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0" data-i18n="form.s4"></h2>
+    <blockquote id="declaration-text"></blockquote>
+    <input type="hidden" name="declaration_version" value="">
+    <label class="check"><input type="checkbox" name="declaration_accepted" value="1" required>
+      <span id="declaration-accept"></span></label>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0" id="summary-title"></h2>
+    <dl>
+      <dt data-i18n="form.level_label"></dt><dd data-i18n="form.level_value"></dd>
+      <dt id="price-row" hidden data-i18n="form.price"></dt><dd id="price-value" hidden></dd>
+    </dl>
+  </div>
+
+  <p style="margin:22px 0 0"><button type="submit" data-i18n="form.submit"></button></p>
+</form>
+{% endblock %}
+{% block before_footer %}<div data-only="en">{% with lang='en' %}{% include "_donate.html" %}{% endwith %}</div><div data-only="es" hidden>{% with lang='es' %}{% include "_donate.html" %}{% endwith %}</div>{% endblock %}

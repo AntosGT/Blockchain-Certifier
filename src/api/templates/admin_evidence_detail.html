@@ -1,0 +1,111 @@
+{% extends "admin_base.html" %}
+{% block title %}{{ e.id }} · prima-certified{% endblock %}
+{% block content %}
+<p><a href="/admin/evidencias">&larr; Evidencias</a></p>
+<h1>{{ e.title }}</h1>
+<p class="lead"><span class="mono">{{ e.id }}</span> &nbsp;
+  <span class="badge {% if e.status in ('VERIFIED', 'CONFIRMED') %}ok{% elif e.status == 'FAILED' %}bad{% else %}warn{% endif %}">{{ evidence_states.get(e.status, e.status) }}</span></p>
+
+<div class="card">
+  <dl>
+    <dt>Tipo</dt><dd>{{ category_labels.get(e.category, e.category) }}</dd>
+    <dt>Descripción</dt><dd>{{ e.description or "—" }}</dd>
+    <dt>Titular</dt><dd>{{ e.owner_name }} ({{ e.owner_email }}), {{ e.owner_country }}{% if e.owner_document %}, documento {{ e.owner_document }}{% endif %}</dd>
+    <dt>Creada</dt><dd>{{ e.created_at.strftime("%Y-%m-%d %H:%M:%S") }} UTC</dd>
+    {% if e.confirmed_at %}<dt>Confirmada</dt><dd>{{ e.confirmed_at.strftime("%Y-%m-%d %H:%M:%S") }} UTC</dd>{% endif %}
+    <dt>Declaración</dt><dd>versión {{ e.declaration_version or "—" }}{% if e.declaration_accepted_at %}, aceptada el {{ e.declaration_accepted_at.strftime("%Y-%m-%d %H:%M") }} UTC{% endif %}</dd>
+    <dt>Huella digital (hash)</dt><dd class="mono">{{ e.manifest_hash or "—" }}</dd>
+    {% if e.request_id %}<dt>Solicitud</dt><dd><a href="/admin/solicitudes/{{ e.request_id }}">ver solicitud</a></dd>{% endif %}
+  </dl>
+</div>
+
+{% if e.proof %}
+<h2>Prueba en Bitcoin</h2>
+<div class="card">
+  <dl>
+    <dt>Estado de la prueba</dt><dd>{{ e.proof.verification_status }}</dd>
+    <dt>Sello</dt><dd>{% if e.proof.has_seal %}generado{% else %}todavía no generado{% endif %}</dd>
+    <dt>Bloque de Bitcoin</dt><dd>{{ e.proof.bitcoin_block_height or "pendiente" }}</dd>
+    {% if e.proof.bitcoin_block_time %}<dt>Fecha del bloque</dt><dd>{{ e.proof.bitcoin_block_time.strftime("%Y-%m-%d %H:%M:%S") }} UTC</dd>{% endif %}
+    {% if e.proof.verified_at %}<dt>Verificada</dt><dd>{{ e.proof.verified_at.strftime("%Y-%m-%d %H:%M:%S") }} UTC</dd>{% endif %}
+  </dl>
+</div>
+{% endif %}
+
+{% if e.certificate %}
+<h2>Certificado de PRIMA</h2>
+<div class="card">
+  <dl>
+    <dt>Emitido</dt><dd>{{ e.certificate.issued_at.strftime("%Y-%m-%d %H:%M:%S") }} UTC</dd>
+    <dt>Versión de textos</dt><dd>{{ e.certificate.template_version }}</dd>
+    {% if e.certificate.bitcoin_block_time %}<dt>Fecha del bloque</dt><dd>{{ e.certificate.bitcoin_block_time.strftime("%Y-%m-%d %H:%M:%S") }} UTC</dd>{% endif %}
+    <dt>Huella del PDF</dt><dd class="mono">{{ e.certificate.pdf_sha256 }}</dd>
+    <dt>Descargas</dt><dd><a href="/admin/evidencias/{{ e.id }}/certificado.pdf">Certificado (PDF)</a> &nbsp;&middot;&nbsp; <a href="/admin/evidencias/{{ e.id }}/paquete.zip">Paquete (ZIP)</a></dd>
+  </dl>
+</div>
+{% endif %}
+
+<h2>Archivos</h2>
+<div class="card scroll">
+  {% if e.files %}
+  <table>
+    <tr><th>Archivo</th><th>Tipo</th><th>Tamaño</th><th>Hash del archivo</th></tr>
+    {% for f in e.files %}
+    <tr><td>{{ f.filename }}</td><td>{{ f.mime }}</td><td>{{ f.size|human_size }}</td><td class="mono" style="word-break:break-all">{{ f.sha256 }}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}<span class="muted">Sin archivos.</span>{% endif %}
+</div>
+
+{% if e.chain|length > 1 or e.newer_versions %}
+<h2>Versiones</h2>
+<div class="card">
+  {% for v in e.chain %}
+  <div>{% if v.id == e.id %}<strong>{{ v.id }}</strong> (esta){% else %}<a class="mono" href="/admin/evidencias/{{ v.id }}">{{ v.id }}</a>{% endif %} &middot; {{ v.title }} &middot; {{ evidence_states.get(v.status, v.status) }}</div>
+  {% endfor %}
+  {% for v in e.newer_versions %}
+  <div>Versión posterior: <a class="mono" href="/admin/evidencias/{{ v.id }}">{{ v.id }}</a> &middot; {{ v.title }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if can_retry_seal or can_retry_certificate %}
+<h2>Acciones</h2>
+<div class="card">
+  {% if can_retry_seal %}
+  <form method="post" action="/admin/evidencias/{{ e.id }}/reintentar-sellado" style="margin:0">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <p style="margin:0 0 10px" class="muted">El sellado falló. Devuelve la evidencia a la cola del Registrador.</p>
+    <button type="submit">Reintentar el sellado</button>
+  </form>
+  {% endif %}
+  {% if can_retry_certificate %}
+  <form method="post" action="/admin/evidencias/{{ e.id }}/reintentar-certificado" style="margin:0">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <p style="margin:0 0 10px" class="muted">La evidencia está verificada y todavía no tiene certificado. Devuelve la operación a la cola del Certificador.</p>
+    <button type="submit">Reintentar el certificado</button>
+  </form>
+  {% endif %}
+</div>
+{% endif %}
+
+<h2>Historial (cadena de custodia)</h2>
+<div class="card scroll">
+  <table>
+    <tr><th>Cuándo</th><th>Evento</th><th>Actor</th><th>Detalle</th></tr>
+    {% for ev in e.events %}
+    <tr>
+      <td>{{ ev.timestamp.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+      <td>{{ event_labels.get(ev.event_type, ev.event_type) }}</td>
+      <td>{{ ev.actor }}</td>
+      <td class="mono" style="word-break:break-all">{% if ev.metadata %}{{ ev.metadata|tojson }}{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% if manifest %}
+<h2>Manifest</h2>
+<pre>{{ manifest }}</pre>
+{% endif %}
+{% endblock %}

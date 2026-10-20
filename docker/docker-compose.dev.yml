@@ -1,0 +1,16 @@
+# Local development Postgres. In production the `prima` database lives inside an existing Postgres 15 stack.
+# Local development credentials only; the port is bound to 127.0.0.1.
+services:
+  postgres:
+    image: postgres:15
+    container_name: prima-postgres-dev
+    environment:
+      POSTGRES_USER: prima
+      POSTGRES_PASSWORD: prima_dev
+      POSTGRES_DB: prima_dev
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - prima_pgdata:/var/lib/postgresql/data
+volumes:
+  prima_pgdata:

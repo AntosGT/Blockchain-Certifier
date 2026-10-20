@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}prima-certified{% endblock %}
+{% block head_extra %}
+<meta name="robots" content="noindex">
+<style>[hidden] { display: none !important; }</style>
+<script src="/static/portal.js?v=1" defer></script>
+<link rel="stylesheet" href="/static/fragola/fragola.css?v=2">
+{% endblock %}
+{% block header %}<div data-only="en">{% with lang='en' %}{% include "_fa_header_en.html" %}{% endwith %}</div><div data-only="es" hidden>{% with lang='es' %}{% include "_fa_header_es.html" %}{% endwith %}</div>{% endblock %}
+{% block footer %}<div data-only="en">{% with lang='en' %}{% include "_fa_footer_en.html" %}{% endwith %}</div><div data-only="es" hidden>{% with lang='es' %}{% include "_fa_footer_es.html" %}{% endwith %}</div>{% endblock %}
+{% block content %}
+<div id="estado-root">
+<div class="notice warn" id="st-loading">...</div>
+
+<div id="st-notfound" hidden>
+  <h1 id="st-notfound-title"></h1>
+  <div class="notice error" id="st-notfound-message"></div>
+  <p><a id="st-notfound-back" href="/"></a></p>
+</div>
+
+<div id="st-root" hidden>
+<h1 data-i18n="status.title"></h1>
+<p class="lead" id="st-title"></p>
+
+<div class="notice error" id="st-expired" hidden><strong data-i18n="status.expired"></strong> <span data-i18n="status.expired_action"></span> <a id="st-home" href="/" data-i18n="status.home_page"></a>.</div>
+<div class="notice warn" id="st-processing" hidden data-i18n="status.processing"></div>
+<div id="st-processed" hidden>
+  <div class="notice ok"><strong data-i18n="status.processed"></strong> <span id="st-evidence-text"></span></div>
+  <div class="notice warn" id="st-wait"></div>
+  <div class="card">
+    <dl>
+      <dt data-i18n="status.evidence_id"></dt><dd class="mono" id="st-evidence-id"></dd>
+      <dt data-i18n="status.type"></dt><dd id="st-type"></dd>
+      <dt data-i18n="status.submitted_by"></dt><dd id="st-by"></dd>
+      <dt data-i18n="status.declaration"></dt><dd id="st-declaration"></dd>
+      <dt id="st-hash-row" hidden data-i18n="status.hash"></dt><dd class="mono" id="st-hash"></dd>
+    </dl>
+  </div>
+</div>
+<div class="notice error" id="st-failed" hidden><strong data-i18n="status.failed"></strong> <span data-i18n="status.failed_detail"></span></div>
+
+<h2 data-i18n="status.details"></h2>
+<div class="card">
+  <dl>
+    <dt data-i18n="status.type"></dt><dd id="st-type2"></dd>
+    <dt data-i18n="status.received"></dt><dd id="st-received"></dd>
+  </dl>
+</div>
+</div>
+</div>
+{% endblock %}
+{% block before_footer %}<div data-only="en">{% with lang='en' %}{% include "_donate.html" %}{% endwith %}</div><div data-only="es" hidden>{% with lang='es' %}{% include "_donate.html" %}{% endwith %}</div>{% endblock %}

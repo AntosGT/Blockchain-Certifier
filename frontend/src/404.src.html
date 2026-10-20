@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Not found · prima-certified{% endblock %}
+{% block head_extra %}
+<meta name="robots" content="noindex">
+<style>[hidden] { display: none !important; }</style>
+<link rel="stylesheet" href="/static/fragola/fragola.css?v=2">
+{% endblock %}
+{% block header %}{% with lang='en' %}{% include "_fa_header_en.html" %}{% endwith %}{% endblock %}
+{% block footer %}{% with lang='en' %}{% include "_fa_footer_en.html" %}{% endwith %}{% endblock %}
+{% block content %}
+<h1>Page not found</h1>
+<div class="notice error">This page does not exist. / Esta p&aacute;gina no existe.</div>
+<p><a href="/">Back to home</a> &middot; <a href="/es">Volver al inicio</a></p>
+{% endblock %}

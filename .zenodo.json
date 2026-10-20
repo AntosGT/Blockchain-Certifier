@@ -1,0 +1,34 @@
+{
+  "title": "PRIMA: proof of existence with Bitcoin timestamps",
+  "description": "PRIMA generates verifiable evidence of existence and integrity for a digital file: a canonical manifest, an OpenTimestamps proof anchored in the Bitcoin blockchain, and a certificate package that can be verified independently, without the platform, years later. Developed following FAIR principles (FAIR4RS). Not an intellectual property registry; does not prove authorship.",
+  "creators": [
+    {
+      "name": "Gagliano, Antonio",
+      "affiliation": "https://fragola.agency",
+      "orcid": "0009-0008-3827-3246"
+    }
+  ],
+  "license": "Apache-2.0",
+  "upload_type": "software",
+  "access_right": "open",
+  "keywords": [
+    "proof of existence",
+    "Bitcoin timestamping",
+    "OpenTimestamps",
+    "digital evidence",
+    "data provenance",
+    "FAIR principles",
+    "FAIR4RS",
+    "research software",
+    "open science",
+    "MCP server",
+    "Claude"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/AntosGT/Blockchain-Certifier",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

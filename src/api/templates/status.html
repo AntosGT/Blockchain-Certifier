@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ tr(lang, 'status.title') }} · prima-certified{% endblock %}
+{% block head_extra %}
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/static/fragola/fragola.css?v=2">
+{% endblock %}
+{% block header %}{% if lang == 'es' %}{% include "_fa_header_es.html" %}{% else %}{% include "_fa_header_en.html" %}{% endif %}{% endblock %}
+{% block footer %}{% if lang == 'es' %}{% include "_fa_footer_es.html" %}{% else %}{% include "_fa_footer_en.html" %}{% endif %}{% endblock %}
+{% block content %}
+<h1>{{ tr(lang, 'status.title') }}</h1>
+<p class="lead">{{ req.title }}</p>
+
+{% if req.status == "PENDING_EMAIL" or req.status == "EXPIRED" %}
+<div class="notice error"><strong>{{ tr(lang, 'status.expired') }}</strong> {{ tr(lang, 'status.expired_action') }} <a href="{{ home_url }}">{{ tr(lang, 'status.home_page') }}</a>.</div>
+{% elif req.status == "PROCESSING" or req.status == "AWAITING_PAYMENT" %}
+<div class="notice warn">{{ tr(lang, 'status.processing') }}</div>
+{% elif req.status == "PROCESSED" %}
+<div class="notice ok"><strong>{{ tr(lang, 'status.processed') }}</strong> {{ evidence_text }}</div>
+<div class="notice warn">{{ tr(lang, 'status.wait', email=req.email) }}</div>
+<div class="card">
+  <dl>
+    <dt>{{ tr(lang, 'status.evidence_id') }}</dt><dd class="mono">{{ req.evidence_id }}</dd>
+    <dt>{{ tr(lang, 'status.type') }}</dt><dd>{{ category_label }}</dd>
+    <dt>{{ tr(lang, 'status.submitted_by') }}</dt><dd>{{ req.name }} ({{ req.email }})</dd>
+    <dt>{{ tr(lang, 'status.declaration') }}</dt><dd>{{ tr(lang, 'status.version', version=evidence.declaration_version) }}</dd>
+    {% if evidence.manifest_hash %}<dt>{{ tr(lang, 'status.hash') }}</dt><dd class="mono">{{ evidence.manifest_hash }}</dd>{% endif %}
+  </dl>
+</div>
+{% elif req.status == "FAILED" %}
+<div class="notice error"><strong>{{ tr(lang, 'status.failed') }}</strong> {{ tr(lang, 'status.failed_detail') }}</div>
+{% endif %}
+
+<h2>{{ tr(lang, 'status.details') }}</h2>
+<div class="card">
+  <dl>
+    <dt>{{ tr(lang, 'status.type') }}</dt><dd>{{ category_label }}</dd>
+    <dt>{{ tr(lang, 'status.received') }}</dt><dd>{{ req.created_at.strftime("%Y-%m-%d %H:%M") }} UTC</dd>
+  </dl>
+</div>
+{% endblock %}
+{% block before_footer %}{% include "_donate.html" %}{% endblock %}

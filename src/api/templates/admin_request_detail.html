@@ -1,0 +1,58 @@
+{% extends "admin_base.html" %}
+{% block title %}Solicitud · prima-certified{% endblock %}
+{% block content %}
+<p><a href="/admin/solicitudes">&larr; Solicitudes</a></p>
+<h1>{{ r.title }}</h1>
+<p class="lead"><span class="badge {% if r.status == 'PROCESSED' %}ok{% elif r.status == 'FAILED' %}bad{% elif r.status in ('PENDING_EMAIL', 'AWAITING_PAYMENT', 'PROCESSING') %}warn{% endif %}">{{ request_states.get(r.status, r.status) }}</span></p>
+
+{% if r.error %}<div class="notice error"><strong>Error:</strong> {{ r.error }}</div>{% endif %}
+
+<div class="card">
+  <dl>
+    {% if r.stage %}<dt>Etapa</dt><dd>{{ stage_labels.get(r.stage, r.stage) }}, {{ r.stage_since|ago }}</dd>{% endif %}
+    <dt>Tipo</dt><dd>{{ category_labels.get(r.category, r.category) }}</dd>
+    <dt>Descripción</dt><dd>{{ r.description or "—" }}</dd>
+    <dt>Titular</dt><dd>{{ r.name }}</dd>
+    <dt>Email</dt><dd>{{ r.email }}</dd>
+    <dt>País</dt><dd>{{ r.country }}</dd>
+    <dt>Documento</dt><dd>{{ r.document_id or "—" }}</dd>
+    <dt>Declaración</dt><dd>versión {{ r.declaration_version }}, aceptada el {{ r.declaration_accepted_at.strftime("%Y-%m-%d %H:%M") }} UTC</dd>
+    <dt>Recibida</dt><dd>{{ r.created_at.strftime("%Y-%m-%d %H:%M") }} UTC</dd>
+    <dt>Última actualización</dt><dd>{{ r.updated_at.strftime("%Y-%m-%d %H:%M") }} UTC</dd>
+    {% if r.status == 'PENDING_EMAIL' and r.verification_expires_at %}<dt>El enlace vence</dt><dd>{{ r.verification_expires_at.strftime("%Y-%m-%d %H:%M") }} UTC</dd>{% endif %}
+    {% if r.evidence_id %}<dt>Evidencia</dt><dd><a class="mono" href="/admin/evidencias/{{ r.evidence_id }}">{{ r.evidence_id }}</a></dd>{% endif %}
+  </dl>
+</div>
+
+<h2>Avisos</h2>
+<div class="card scroll">
+  {% if notices %}
+  <table>
+    <tr><th>Creado</th><th>Aviso</th><th>Destinatario</th><th>Estado</th><th>Intentos</th><th>Último error</th><th></th></tr>
+    {% for n in notices %}
+    <tr>
+      <td>{{ n.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>{{ notice_kinds.get(n.kind, n.kind) }}</td>
+      <td>{{ n.recipient_email }}</td>
+      <td><span class="badge {% if n.status == 'sent' %}ok{% elif n.status == 'failed' %}bad{% else %}warn{% endif %}">{{ notice_states.get(n.status, n.status) }}</span></td>
+      <td>{{ n.attempts }}</td>
+      <td class="muted">{{ n.last_error or "" }}</td>
+      <td>{% if n.status == 'failed' %}<form method="post" action="/admin/avisos/{{ n.id }}/reenviar" style="margin:0"><input type="hidden" name="csrf" value="{{ csrf }}"><button type="submit" class="secondary" style="padding:4px 10px">Reenviar</button></form>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<span class="muted">Todavía no hay avisos para esta solicitud.</span>{% endif %}
+</div>
+
+<h2>Contenido</h2>
+<div class="card">
+  {% if r.files %}
+  <table>
+    <tr><th>Archivo</th><th>Tamaño</th></tr>
+    {% for f in r.files %}<tr><td>{{ f.filename }}</td><td>{{ f.size|human_size }}</td></tr>{% endfor %}
+  </table>
+  {% endif %}
+  {% if r.has_text %}<p style="margin:{% if r.files %}14px{% else %}0{% endif %} 0 0">Registro textual{% if r.text_title %}: {{ r.text_title }}{% endif %}{% if r.text_authors %} (autores: {{ r.text_authors }}){% endif %}</p>{% endif %}
+  {% if not r.files and not r.has_text %}<span class="muted">Sin contenido.</span>{% endif %}
+</div>
+{% endblock %}

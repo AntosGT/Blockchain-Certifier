@@ -1,0 +1,47 @@
+{% extends "admin_base.html" %}
+{% block title %}Evidencias · prima-certified{% endblock %}
+{% block content %}
+<h1>Evidencias</h1>
+<form method="get" action="/admin/evidencias" class="filters">
+  <select name="estado" onchange="this.form.submit()">
+    <option value="">Todos los estados</option>
+    {% for code, label in evidence_states.items() %}
+    <option value="{{ code }}" {% if estado == code %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="categoria" onchange="this.form.submit()">
+    <option value="">Todos los tipos</option>
+    {% for code, label in categories %}
+    <option value="{{ code }}" {% if categoria == code %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="cliente" onchange="this.form.submit()">
+    <option value="">Todos los clientes</option>
+    {% for c in clients %}
+    <option value="{{ c.email }}" {% if cliente == c.email %}selected{% endif %}>{{ c.name }} ({{ c.email }})</option>
+    {% endfor %}
+  </select>
+  <input type="text" name="q" value="{{ q }}" placeholder="Buscar por ID, título, titular, email o hash" maxlength="100">
+  <button type="submit">Buscar</button>
+</form>
+<div class="card scroll">
+  {% if rows %}
+  <table>
+    <tr><th>ID</th><th>Título</th><th>Tipo</th><th>Titular</th><th>Estado</th><th>Huella</th><th>Bitcoin</th><th>Pago</th><th>Creada</th></tr>
+    {% for e in rows %}
+    <tr>
+      <td class="mono"><a href="/admin/evidencias/{{ e.id }}">{{ e.id }}</a></td>
+      <td>{{ e.title }}</td>
+      <td>{{ category_labels.get(e.category, e.category) }}</td>
+      <td><a href="/admin/evidencias?cliente={{ e.owner_email|urlencode }}">{{ e.owner_name }}</a><br><span class="muted">{{ e.owner_email }}</span></td>
+      <td><span class="badge {% if e.status in ('VERIFIED', 'CONFIRMED') %}ok{% elif e.status == 'FAILED' %}bad{% else %}warn{% endif %}">{{ evidence_states.get(e.status, e.status) }}</span></td>
+      <td class="mono">{{ e.manifest_hash|short_hash }}</td>
+      <td>{% if e.bitcoin_block_height %}bloque {{ e.bitcoin_block_height }}{% elif e.has_seal %}pendiente{% else %}<span class="muted">sin sello</span>{% endif %}</td>
+      <td>{{ e.payment_method or "—" }}</td>
+      <td>{{ e.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<span class="muted">No hay evidencias con ese filtro.</span>{% endif %}
+</div>
+{% endblock %}

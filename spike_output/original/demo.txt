@@ -1,0 +1,2 @@
+PRIMA demo file.
+This text is a public, non-personal sample used to show that the verifier works end to end against a real OpenTimestamps proof, with no private data in the manifest.

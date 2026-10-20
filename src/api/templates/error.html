@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · prima-certified{% endblock %}
+{% block head_extra %}
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/static/fragola/fragola.css?v=2">
+{% endblock %}
+{% block header %}{% if lang == 'es' %}{% include "_fa_header_es.html" %}{% else %}{% include "_fa_header_en.html" %}{% endif %}{% endblock %}
+{% block footer %}{% if lang == 'es' %}{% include "_fa_footer_es.html" %}{% else %}{% include "_fa_footer_en.html" %}{% endif %}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<div class="notice error">{{ message }}</div>
+<p><a href="{{ home_url|default('/') }}">{{ tr(lang|default('en'), 'common.back_home') }}</a></p>
+{% endblock %}

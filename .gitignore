@@ -1,0 +1,10 @@
+.venv/
+.env
+__pycache__/
+*.pyc
+uploads/
+storage/
+frontend/dist/
+frontend/.dev-links.txt
+Certificaciones/
+_github_export/

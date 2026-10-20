@@ -1,0 +1,47 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "name": "PRIMA: proof of existence with Bitcoin timestamps",
+  "description": "PRIMA generates verifiable evidence of existence and integrity for a digital file: a canonical manifest, an OpenTimestamps proof anchored in the Bitcoin blockchain, and a certificate package that can be verified independently, without the platform, years later. It is not an intellectual property registry and does not prove authorship. Developed following FAIR principles (FAIR4RS): a public JSON Schema for the manifest, an independent verifier script, JSON-LD (schema.org) metadata, a static OpenAPI description of the public API, and a Model Context Protocol (MCP) server for Claude and other LLM agents.",
+  "identifier": "https://doi.org/10.5281/zenodo.23512705",
+  "codeRepository": "https://github.com/AntosGT/Blockchain-Certifier",
+  "url": "https://certified.fragola.agency",
+  "softwareVersion": "1.0.0",
+  "dateCreated": "2026-09-30",
+  "datePublished": "2026-10-19",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "programmingLanguage": ["Python", "JavaScript"],
+  "runtimePlatform": "Python 3.12+",
+  "operatingSystem": ["Linux", "Windows", "macOS"],
+  "applicationCategory": "Research software, digital evidence, proof of existence",
+  "keywords": [
+    "proof of existence",
+    "Bitcoin timestamping",
+    "OpenTimestamps",
+    "digital evidence",
+    "data provenance",
+    "FAIR principles",
+    "FAIR4RS",
+    "research software",
+    "open science",
+    "MCP server",
+    "Claude"
+  ],
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Antonio",
+      "familyName": "Gagliano",
+      "url": "https://fragola.agency",
+      "@id": "https://orcid.org/0009-0008-3827-3246"
+    }
+  ],
+  "softwareRequirements": [
+    "Python >= 3.12",
+    "PostgreSQL >= 15"
+  ],
+  "referencePublication": {
+    "@type": "CreativeWork",
+    "text": "Gagliano, Antonio (2026). PRIMA: proof of existence with Bitcoin timestamps (v1.0.0). Zenodo. https://doi.org/10.5281/zenodo.23512705"
+  }
+}
