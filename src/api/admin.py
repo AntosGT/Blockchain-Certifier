@@ -6,6 +6,7 @@ import uuid
 from collections import Counter
 from datetime import datetime, timezone
 from typing import Optional
+from urllib.parse import urlparse
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
@@ -23,6 +24,21 @@ COOKIE = "prima_admin"
 # creation_flow.py); reject anything else before it reaches a redirect, so an
 # untrusted path segment can never carry a scheme or host (py/url-redirection).
 EVIDENCE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+
+def safe_evidence_redirect_target(evidence_id: str) -> Optional[str]:
+    """Admin-redirect target for an evidence id, or None if it is not safe.
+
+    Checked with urlparse (the approach CodeQL's py/url-redirection
+    recommends): reject anything that would carry a scheme or a host, on top
+    of the id-format allowlist, so this is never an open redirect.
+    """
+    if not EVIDENCE_ID_RE.match(evidence_id):
+        return None
+    target = f"/admin/evidencias/{evidence_id}"
+    parsed = urlparse(target)
+    if parsed.scheme or parsed.netloc:
+        return None
+    return target
 
 REQUEST_STATES = {
     "PENDING_EMAIL": "Esperando confirmación de email", "AWAITING_PAYMENT": "Esperando pago",
@@ -263,7 +279,8 @@ def register_admin(app: FastAPI, svc: Services, templates: Jinja2Templates, sett
         session = guard(request)
         if not session:
             return to_login()
-        if not EVIDENCE_ID_RE.match(evidence_id):
+        target = safe_evidence_redirect_target(evidence_id)
+        if target is None:
             return not_found(request, session)
         if not csrf_ok(session, csrf):
             return forbidden(request, session)
@@ -273,14 +290,15 @@ def register_admin(app: FastAPI, svc: Services, templates: Jinja2Templates, sett
             return not_found(request, session)
         except ValueError as e:
             return refused(request, session, str(e))
-        return RedirectResponse(f"/admin/evidencias/{evidence_id}", status_code=303)
+        return RedirectResponse(target, status_code=303)
 
     @app.post("/admin/evidencias/{evidence_id}/reintentar-certificado")
     def retry_certificate(request: Request, evidence_id: str, csrf: str = Form("")):
         session = guard(request)
         if not session:
             return to_login()
-        if not EVIDENCE_ID_RE.match(evidence_id):
+        target = safe_evidence_redirect_target(evidence_id)
+        if target is None:
             return not_found(request, session)
         if not csrf_ok(session, csrf):
             return forbidden(request, session)
@@ -290,7 +308,7 @@ def register_admin(app: FastAPI, svc: Services, templates: Jinja2Templates, sett
             return not_found(request, session)
         except ValueError as e:
             return refused(request, session, str(e))
-        return RedirectResponse(f"/admin/evidencias/{evidence_id}", status_code=303)
+        return RedirectResponse(target, status_code=303)
 
     @app.get("/admin/solicitudes")
     def requests_list(request: Request, estado: str = "", q: str = "", cliente: str = ""):
