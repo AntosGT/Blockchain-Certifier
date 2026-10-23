@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import secrets
 import uuid
 from collections import Counter
@@ -17,6 +18,11 @@ from src.core.control import overdue_operations
 from src.core.labels import STAGES, STAGE_LABELS
 
 COOKIE = "prima_admin"
+
+# Evidence ids are always generated as "<prefix>-<YYYYMMDD>-<8 hex>" (see
+# creation_flow.py); reject anything else before it reaches a redirect, so an
+# untrusted path segment can never carry a scheme or host (py/url-redirection).
+EVIDENCE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 
 REQUEST_STATES = {
     "PENDING_EMAIL": "Esperando confirmación de email", "AWAITING_PAYMENT": "Esperando pago",
@@ -257,6 +263,8 @@ def register_admin(app: FastAPI, svc: Services, templates: Jinja2Templates, sett
         session = guard(request)
         if not session:
             return to_login()
+        if not EVIDENCE_ID_RE.match(evidence_id):
+            return not_found(request, session)
         if not csrf_ok(session, csrf):
             return forbidden(request, session)
         try:
@@ -272,6 +280,8 @@ def register_admin(app: FastAPI, svc: Services, templates: Jinja2Templates, sett
         session = guard(request)
         if not session:
             return to_login()
+        if not EVIDENCE_ID_RE.match(evidence_id):
+            return not_found(request, session)
         if not csrf_ok(session, csrf):
             return forbidden(request, session)
         try:
