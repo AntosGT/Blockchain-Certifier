@@ -1,11 +1,25 @@
 # Security policy
 
+## Maintainer
+
+Antonio Gagliano (`AntosGT`) is the security maintainer of this repository.
+Report security issues to `antos@fragola.agency` or through
+[GitHub's private vulnerability reporting](https://github.com/AntosGT/Blockchain-Certifier/security/advisories/new),
+never in a public issue.
+
+## Supported versions
+
+| Version | Supported |
+| --- | --- |
+| 1.x | Yes |
+
+Only the latest `1.x` release receives security fixes. There is no older
+major version to maintain.
+
 ## Reporting a vulnerability
 
-If you find a security issue in this software, please report it privately
-instead of opening a public issue: email the maintainer listed in
-`CITATION.cff`. Include steps to reproduce and the affected version.
-Please allow a reasonable time to respond before any public disclosure.
+Include steps to reproduce and the affected version. Please allow a
+reasonable time to respond before any public disclosure.
 
 ## Scope
 
